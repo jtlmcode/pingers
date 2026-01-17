@@ -103,3 +103,38 @@ export async function PATCH(
     )
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+
+    // Get the player to find the userId
+    const player = await prisma.player.findUnique({
+      where: { id },
+      select: { userId: true },
+    })
+
+    if (!player) {
+      return NextResponse.json(
+        { error: 'Player not found' },
+        { status: 404 }
+      )
+    }
+
+    // Delete the user (this will cascade to player due to onDelete: Cascade)
+    await prisma.user.delete({
+      where: { id: player.userId },
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting player:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete player' },
+      { status: 500 }
+    )
+  }
+}

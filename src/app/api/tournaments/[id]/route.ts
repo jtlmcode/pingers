@@ -92,9 +92,15 @@ export async function PATCH(
     const { id } = await params
     const body = await request.json()
 
+    // Handle date conversions
+    const updateData: any = { ...body }
+    if (body.startDate) updateData.startDate = new Date(body.startDate)
+    if (body.endDate) updateData.endDate = new Date(body.endDate)
+    if (body.registrationDeadline) updateData.registrationDeadline = new Date(body.registrationDeadline)
+
     const tournament = await prisma.tournament.update({
       where: { id },
-      data: body,
+      data: updateData,
     })
 
     return NextResponse.json(tournament)
@@ -102,6 +108,27 @@ export async function PATCH(
     console.error('Error updating tournament:', error)
     return NextResponse.json(
       { error: 'Failed to update tournament' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+
+    await prisma.tournament.delete({
+      where: { id },
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting tournament:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete tournament' },
       { status: 500 }
     )
   }

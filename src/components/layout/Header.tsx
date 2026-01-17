@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Menu, X, Trophy, Users, Calendar, Image, BookOpen, LogIn } from 'lucide-react'
+import { Menu, X, Trophy, Users, Calendar, Image, BookOpen, LogIn, Settings } from 'lucide-react'
 import { Logo } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
@@ -52,7 +52,14 @@ export function Header() {
           </nav>
 
           {/* Auth Button (Desktop) */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2">
+            <Link
+              href="/admin"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg font-medium text-pingers-gold hover:bg-pingers-gold/10 transition-colors"
+            >
+              <Settings size={18} />
+              <span>Admin</span>
+            </Link>
             <Link
               href="/login"
               className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-pingers-cream/70 hover:text-pingers-lime transition-colors"
@@ -96,7 +103,15 @@ export function Header() {
                 </Link>
               )
             })}
-            <div className="pt-4 border-t border-pingers-dark-lighter">
+            <div className="pt-4 border-t border-pingers-dark-lighter space-y-2">
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-pingers-gold hover:bg-pingers-gold/20 transition-colors"
+              >
+                <Settings size={20} />
+                <span>Admin</span>
+              </Link>
               <Link
                 href="/login"
                 onClick={() => setMobileMenuOpen(false)}
