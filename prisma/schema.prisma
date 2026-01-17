@@ -1,0 +1,253 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// User & Player Models
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  name          String?
+  image         String?
+  role          String    @default("spectator") // admin, player, spectator
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  player        Player?
+}
+
+model Player {
+  id                  String                @id @default(cuid())
+  userId              String                @unique
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nickname            String
+  tagline             String?
+  photo               String?
+  isFoundingSeason    Boolean               @default(false)
+  // Stats (1-10 scale)
+  statDefence         Int                   @default(5)
+  statSpin            Int                   @default(5)
+  statServe           Int                   @default(5)
+  statAgility         Int                   @default(5)
+  statPhysicality     Int                   @default(5)
+  statComplainometer  Int                   @default(5)
+  // Records
+  wins                Int                   @default(0)
+  losses              Int                   @default(0)
+  currentStreak       Int                   @default(0)
+  longestWinStreak    Int                   @default(0)
+  longestLoseStreak   Int                   @default(0)
+  totalPointsScored   Int                   @default(0)
+  totalPointsAgainst  Int                   @default(0)
+  // Timestamps
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  // Relations
+  matchesAsPlayer1    Match[]               @relation("Player1Matches")
+  matchesAsPlayer2    Match[]               @relation("Player2Matches")
+  matchesWon          Match[]               @relation("MatchWinner")
+  tournamentEntries   TournamentParticipant[]
+  tournamentsWon      Tournament[]          @relation("TournamentChampion")
+  consolationWins     Tournament[]          @relation("ConsolationChampion")
+  headToHeadAsPlayer1 HeadToHead[]          @relation("H2HPlayer1")
+  headToHeadAsPlayer2 HeadToHead[]          @relation("H2HPlayer2")
+  achievements        PlayerAchievement[]
+  attendances         Attendance[]
+}
+
+model HeadToHead {
+  id        String   @id @default(cuid())
+  player1Id String
+  player2Id String
+  player1   Player   @relation("H2HPlayer1", fields: [player1Id], references: [id])
+  player2   Player   @relation("H2HPlayer2", fields: [player2Id], references: [id])
+  player1Wins Int    @default(0)
+  player2Wins Int    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([player1Id, player2Id])
+}
+
+// Tournament Models
+model Tournament {
+  id                    String                  @id @default(cuid())
+  name                  String
+  description           String?
+  venue                 String                  @default("The Home of Pingers")
+  startDate             DateTime
+  endDate               DateTime?
+  registrationDeadline  DateTime?
+  status                String                  @default("upcoming") // upcoming, registration, group_stage, knockouts, final, completed
+  maxParticipants       Int                     @default(16)
+  groupCount            Int                     @default(4)
+  image                 String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  // Relations
+  championId            String?
+  champion              Player?                 @relation("TournamentChampion", fields: [championId], references: [id])
+  consolationChampionId String?
+  consolationChampion   Player?                 @relation("ConsolationChampion", fields: [consolationChampionId], references: [id])
+  participants          TournamentParticipant[]
+  groups                TournamentGroup[]
+  matches               Match[]
+}
+
+model TournamentParticipant {
+  id           String     @id @default(cuid())
+  tournamentId String
+  playerId     String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  player       Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  groupId      String?
+  group        TournamentGroup? @relation(fields: [groupId], references: [id])
+  seed         Int?
+  groupWins    Int        @default(0)
+  groupLosses  Int        @default(0)
+  groupPointsFor     Int  @default(0)
+  groupPointsAgainst Int  @default(0)
+  eliminated   Boolean    @default(false)
+  finalPosition Int?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([tournamentId, playerId])
+}
+
+model TournamentGroup {
+  id           String                  @id @default(cuid())
+  tournamentId String
+  tournament   Tournament              @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  name         String                  // e.g., "Group A", "Group B"
+  participants TournamentParticipant[]
+  matches      Match[]
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+}
+
+// Match Model
+model Match {
+  id             String           @id @default(cuid())
+  tournamentId   String?
+  tournament     Tournament?      @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  groupId        String?
+  group          TournamentGroup? @relation(fields: [groupId], references: [id])
+  player1Id      String
+  player1        Player           @relation("Player1Matches", fields: [player1Id], references: [id])
+  player2Id      String
+  player2        Player           @relation("Player2Matches", fields: [player2Id], references: [id])
+  player1Score   Int              @default(0)
+  player2Score   Int              @default(0)
+  winnerId       String?
+  winner         Player?          @relation("MatchWinner", fields: [winnerId], references: [id])
+  stage          String           @default("group") // group, round_of_16, quarter_final, semi_final, consolation_semi, consolation_final, final
+  bracketPosition Int?
+  scheduledTime  DateTime?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  status         String           @default("scheduled") // scheduled, in_progress, completed
+  notes          String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+// Practice & Attendance
+model PracticeSession {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  venue       String       @default("The Home of Pingers")
+  date        DateTime
+  duration    Int?         // minutes
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  attendances Attendance[]
+}
+
+model Attendance {
+  id        String          @id @default(cuid())
+  sessionId String
+  session   PracticeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  playerId  String
+  player    Player          @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  status    String          @default("pending") // pending, confirmed, declined, attended
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@unique([sessionId, playerId])
+}
+
+// Achievements
+model Achievement {
+  id          String              @id @default(cuid())
+  name        String              @unique
+  description String
+  icon        String?
+  tier        String              @default("bronze") // bronze, silver, gold
+  createdAt   DateTime            @default(now())
+  players     PlayerAchievement[]
+}
+
+model PlayerAchievement {
+  id            String      @id @default(cuid())
+  playerId      String
+  player        Player      @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  earnedAt      DateTime    @default(now())
+
+  @@unique([playerId, achievementId])
+}
+
+// Gallery
+model GalleryImage {
+  id           String   @id @default(cuid())
+  url          String
+  caption      String?
+  tournamentId String?
+  featured     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}

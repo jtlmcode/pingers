@@ -1,0 +1,221 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --pingers-lime: #A4B745;
+  --pingers-lime-dark: #8A9A3A;
+  --pingers-lime-light: #B8C85A;
+  --pingers-dark: #1a1a1a;
+  --pingers-dark-lighter: #2d2d2d;
+  --pingers-cream: #f5f5f0;
+  --pingers-gold: #D4AF37;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--pingers-dark);
+  color: var(--pingers-cream);
+  min-height: 100vh;
+}
+
+/* Gritty texture overlay */
+.texture-overlay {
+  position: relative;
+}
+
+.texture-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Distressed text effect */
+.text-distressed {
+  text-shadow:
+    2px 2px 0 rgba(0,0,0,0.3),
+    -1px -1px 0 rgba(255,255,255,0.1);
+}
+
+/* Badge styling */
+.badge-circle {
+  background: linear-gradient(145deg, var(--pingers-dark-lighter), var(--pingers-dark));
+  border: 3px solid var(--pingers-lime);
+  box-shadow:
+    0 0 0 2px var(--pingers-cream),
+    0 0 20px rgba(164, 183, 69, 0.3);
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 40px rgba(164, 183, 69, 0.2);
+}
+
+/* Stats bar */
+.stat-bar {
+  background: linear-gradient(90deg, var(--pingers-lime), var(--pingers-lime-light));
+  box-shadow: 0 0 10px rgba(164, 183, 69, 0.5);
+}
+
+/* Glow effects */
+.glow-lime {
+  box-shadow: 0 0 20px rgba(164, 183, 69, 0.4);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+/* Tournament stage badges */
+.stage-group {
+  background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+  border-left: 4px solid var(--pingers-lime);
+}
+
+.stage-knockout {
+  background: linear-gradient(135deg, #3d3d2d, #2a2a1a);
+  border-left: 4px solid var(--pingers-gold);
+}
+
+.stage-final {
+  background: linear-gradient(135deg, #4d3d2d, #3a2a1a);
+  border-left: 4px solid var(--pingers-gold);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+}
+
+/* Player card gradient */
+.player-card-bg {
+  background: linear-gradient(180deg,
+    rgba(45, 45, 45, 0.9) 0%,
+    rgba(26, 26, 26, 0.95) 100%
+  );
+}
+
+/* Founding season badge */
+.founding-badge {
+  background: linear-gradient(135deg, var(--pingers-gold), #c9a227);
+  color: #1a1a1a;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Bracket connector lines */
+.bracket-line {
+  border-color: var(--pingers-lime);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--pingers-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pingers-dark-lighter);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pingers-lime-dark);
+}
+
+/* Button styles */
+.btn-primary {
+  @apply bg-pingers-lime text-pingers-dark font-bold py-3 px-6 rounded-lg
+         hover:bg-pingers-lime-light transition-all duration-200
+         shadow-lg hover:shadow-xl hover:shadow-pingers-lime/20;
+}
+
+.btn-secondary {
+  @apply bg-transparent border-2 border-pingers-lime text-pingers-lime
+         font-bold py-3 px-6 rounded-lg hover:bg-pingers-lime
+         hover:text-pingers-dark transition-all duration-200;
+}
+
+.btn-gold {
+  @apply bg-pingers-gold text-pingers-dark font-bold py-3 px-6 rounded-lg
+         hover:bg-pingers-gold-light transition-all duration-200
+         shadow-lg hover:shadow-xl hover:shadow-pingers-gold/20;
+}
+
+/* Input styles */
+.input-dark {
+  @apply bg-pingers-dark-lighter border border-pingers-dark-lighter
+         text-pingers-cream rounded-lg px-4 py-3 w-full
+         focus:border-pingers-lime focus:ring-1 focus:ring-pingers-lime
+         focus:outline-none transition-all duration-200;
+}
+
+/* Table styles */
+.table-pingers {
+  @apply w-full;
+}
+
+.table-pingers th {
+  @apply bg-pingers-dark-lighter text-pingers-lime font-bold text-left
+         px-4 py-3 uppercase text-sm tracking-wider;
+}
+
+.table-pingers td {
+  @apply px-4 py-3 border-b border-pingers-dark-lighter;
+}
+
+.table-pingers tr:hover td {
+  @apply bg-pingers-dark-lighter/50;
+}
+
+/* Animation classes */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Hero section styles */
+.hero-gradient {
+  background: linear-gradient(
+    180deg,
+    rgba(26, 26, 26, 0) 0%,
+    rgba(26, 26, 26, 0.8) 50%,
+    rgba(26, 26, 26, 1) 100%
+  );
+}
