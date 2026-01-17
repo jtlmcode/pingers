@@ -26,7 +26,7 @@ interface Match {
 
 interface TournamentBracketProps {
   matches: Match[]
-  stage: 'knockouts' | 'semi_final' | 'final' | 'consolation_semi' | 'consolation_final'
+  stage: 'knockouts' | 'quarter_final' | 'semi_final' | 'final' | 'consolation_semi' | 'consolation_final'
   title: string
   className?: string
 }
